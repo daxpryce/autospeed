@@ -28,6 +28,21 @@ jobs:
           git tag --points-at HEAD | grep -Fx "${GITHUB_REF_NAME}"
           test "$(git cat-file -t "${GITHUB_REF_NAME}")" = tag
 
+      # A GitHub environment's deployment rules match a tag by name only; they cannot express
+      # "this tag must point at a commit that is on main". Without this check, tagging a feature
+      # branch would quietly produce a signed, published release of unreviewed code. Branch
+      # protection on main is what makes the ancestry assertion meaningful.
+      - name: Require the tag to be on main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --quiet origin +refs/heads/main:refs/remotes/origin/main
+          if ! git merge-base --is-ancestor "${GITHUB_SHA}" origin/main; then
+            echo "::error::Tag ${GITHUB_REF_NAME} (${GITHUB_SHA}) is not an ancestor of main."
+            echo "::error::Releases are cut from main only. Merge the change first, then tag the merge."
+            exit 1
+          fi
+
       - name: Prepare signing key
         shell: bash
         env:
