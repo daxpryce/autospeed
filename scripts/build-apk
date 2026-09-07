@@ -37,6 +37,27 @@ if [[ -z "${apk}" ]]; then
   exit 1
 fi
 
+# A release build with no signing configuration still succeeds: AGP simply emits
+# `*-release-unsigned.apk`, which this script would then copy to a destination name that gives no
+# hint it cannot be installed. Attempting to install it fails much later with
+# INSTALL_PARSE_FAILED_NO_CERTIFICATES, so confirm the signature here rather than trusting that a
+# successful build implies a usable artifact.
+if [[ "${BUILD_TYPE}" == "release" ]]; then
+  apksigner="$(find "${ANDROID_HOME:-/opt/android-sdk}/build-tools" -type f -name apksigner 2>/dev/null | sort | tail -1)"
+  if [[ -z "${apksigner}" ]]; then
+    echo "Cannot locate apksigner, so ${apk} cannot be confirmed as signed." >&2
+    exit 1
+  fi
+  if ! "${apksigner}" verify "${apk}" >/dev/null 2>&1; then
+    echo "${apk} is not signed and cannot be installed." >&2
+    echo "Export AUTOSPEED_SIGNING_STORE_FILE, AUTOSPEED_SIGNING_STORE_PASSWORD," >&2
+    echo "AUTOSPEED_SIGNING_KEY_ALIAS and AUTOSPEED_SIGNING_KEY_PASSWORD on the host" >&2
+    echo "(devcontainer.json forwards them into the container) and build again." >&2
+    echo "See docs/releases.md for the local release-build recipe." >&2
+    exit 1
+  fi
+fi
+
 mkdir -p "${DIST_DIR}"
 readonly DEST="${DIST_DIR}/autospeed-${FLAVOR}-${BUILD_TYPE}.apk"
 install -m 0644 "${apk}" "${DEST}"

@@ -10,7 +10,11 @@
     "GRADLE_USER_HOME": "/home/vscode/.gradle"
   },
   "remoteEnv": {
-    "AUTOSPEED_PERSONAL_USE_ACK": "${localEnv:AUTOSPEED_PERSONAL_USE_ACK}"
+    "AUTOSPEED_PERSONAL_USE_ACK": "${localEnv:AUTOSPEED_PERSONAL_USE_ACK}",
+    "AUTOSPEED_SIGNING_STORE_FILE": "${localEnv:AUTOSPEED_SIGNING_STORE_FILE}",
+    "AUTOSPEED_SIGNING_STORE_PASSWORD": "${localEnv:AUTOSPEED_SIGNING_STORE_PASSWORD}",
+    "AUTOSPEED_SIGNING_KEY_ALIAS": "${localEnv:AUTOSPEED_SIGNING_KEY_ALIAS}",
+    "AUTOSPEED_SIGNING_KEY_PASSWORD": "${localEnv:AUTOSPEED_SIGNING_KEY_PASSWORD}"
   },
   "mounts": [
     "source=autospeed-gradle-cache,target=/home/vscode/.gradle,type=volume",
