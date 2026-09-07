@@ -174,6 +174,8 @@ before re-tagging, since `git tag -a` will not overwrite an existing tag:
 ```bash
 git push origin :refs/tags/v1.0.0
 git tag -d v1.0.0
+git tag -a v1.0.0 -m "Autospeed 1.0.0"
+git push origin v1.0.0
 ```
 
 GitHub's artifact attestation proves which workflow and which commit produced
