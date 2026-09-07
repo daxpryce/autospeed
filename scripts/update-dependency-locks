@@ -5,7 +5,22 @@ readonly ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${ROOT}"
 
 echo "Review every dependency change before committing regenerated locks." >&2
-./gradlew --no-daemon --write-locks dependencies
+
+# `dependencies` is a per-project diagnostic task, so a bare `./gradlew dependencies` only
+# resolves the root project. Dependency locking is enabled on the subprojects (see the
+# `subprojects { dependencyLocking { ... } }` block in build.gradle.kts), so the task has to be
+# invoked on each of them by path or their lockfiles are silently never regenerated.
+mapfile -t locked_projects < <(
+  sed -n 's/^include("\(:[A-Za-z0-9_:-]*\)").*/\1/p' settings.gradle.kts
+)
+if [[ ${#locked_projects[@]} -eq 0 ]]; then
+  echo "No subprojects found in settings.gradle.kts; cannot regenerate locks." >&2
+  exit 1
+fi
+
+readonly dependency_tasks=("${locked_projects[@]/%/:dependencies}")
+echo "Regenerating locks for: ${locked_projects[*]}" >&2
+./gradlew --no-daemon --write-locks "${dependency_tasks[@]}"
 ./gradlew --no-daemon \
   --write-verification-metadata sha256 \
   help
