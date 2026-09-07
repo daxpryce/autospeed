@@ -44,7 +44,7 @@ starts the container if needed and executes a command inside it.
 | `scripts/build-apk [VARIANT]` | Assemble a variant and copy the APK to `dist/`. |
 | `scripts/install-apk PATH` | Install over ADB, refusing to guess between devices. |
 | `scripts/release-build` | Signed release artifacts into `release/`. |
-| `scripts/update-dependency-locks` | Regenerate dependency locks and checksums. |
+| `scripts/update-dependency-locks` | Regenerate the Gradle dependency lockfiles. |
 
 Typical loop:
 
@@ -220,16 +220,28 @@ Things that trip the gate regularly:
 ## Dependencies
 
 Application dependencies are exact-versioned and dependency-locked
-(`settings-gradle.lockfile`, `core/gradle.lockfile`). When intentionally
-changing a version, regenerate inside the container and review every diff:
+(`settings-gradle.lockfile`, `core/gradle.lockfile`, `app/gradle.lockfile`).
+When intentionally changing a version, regenerate inside the container and
+review every diff:
 
 ```bash
 ./scripts/container-run ./scripts/update-dependency-locks
 ```
 
-This also writes `gradle/verification-metadata.xml` if dependency verification
-is enabled. Never add a checksum simply because verification failed during an
-otherwise unrelated build; establish first why the artifact changed.
+`dependencies` is a per-project task, so the script invokes it once per locked
+project, asking Gradle itself (`./gradlew lockedProjectPaths`) which projects
+those are. A bare `./gradlew dependencies` resolves only the root project and
+leaves every module lockfile untouched without reporting an error. The script
+also refuses to run if it finds a committed lockfile belonging to a project
+Gradle no longer reports as locked, since that file would otherwise drift
+unnoticed.
+
+Gradle's dependency *verification* (`gradle/verification-metadata.xml`) is
+deliberately not enabled. Turning it on is not just a matter of generating the
+file: AGP resolves `aapt2` through a detached configuration during task
+execution, so a generation run that does not build every variant produces
+metadata that fails verification on the next build. Enabling it needs a
+deliberate design pass, not a one-off `--write-verification-metadata`.
 
 ## Application identifiers
 

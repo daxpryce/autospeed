@@ -5,7 +5,37 @@ readonly ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${ROOT}"
 
 echo "Review every dependency change before committing regenerated locks." >&2
-./gradlew --no-daemon --write-locks dependencies
-./gradlew --no-daemon \
-  --write-verification-metadata sha256 \
-  help
+
+# `dependencies` is a per-project diagnostic task, so a bare `./gradlew dependencies` resolves
+# only the root project and leaves every module lockfile untouched without reporting an error.
+# Ask Gradle which projects have locking enabled instead of parsing settings.gradle.kts, so that
+# reformatting that file, or declaring several projects in one `include(...)` call, cannot make a
+# module go unnoticed.
+if ! locked_projects_raw="$(./gradlew --no-daemon --quiet lockedProjectPaths)"; then
+  echo "Failed to query locked projects from Gradle." >&2
+  exit 1
+fi
+locked_projects=()
+while IFS= read -r line; do
+  [[ $line == :* ]] && locked_projects+=("$line")
+done <<<"${locked_projects_raw}"
+if [[ ${#locked_projects[@]} -eq 0 ]]; then
+  echo "Gradle reported no projects with dependency locking enabled." >&2
+  exit 1
+fi
+
+# Guard the inverse mistake: a committed lockfile whose project is no longer discovered would
+# quietly stop being regenerated and drift, which is the failure this script exists to prevent.
+while IFS= read -r lockfile; do
+  project=":${lockfile%/gradle.lockfile}"
+  project="${project//\//:}"
+  if [[ " ${locked_projects[*]} " != *" ${project} "* ]]; then
+    echo "Lockfile ${lockfile} does not correspond to any project Gradle reported as locked." >&2
+    echo "Locked projects: ${locked_projects[*]}" >&2
+    exit 1
+  fi
+done < <(find . -mindepth 2 -name gradle.lockfile -not -path '*/build/*' -printf '%P\n')
+
+readonly dependency_tasks=(":dependencies" "${locked_projects[@]/%/:dependencies}")
+echo "Regenerating locks for: : ${locked_projects[*]}" >&2
+./gradlew --no-daemon --write-locks "${dependency_tasks[@]}"
