@@ -11,9 +11,14 @@ echo "Review every dependency change before committing regenerated locks." >&2
 # Ask Gradle which projects have locking enabled instead of parsing settings.gradle.kts, so that
 # reformatting that file, or declaring several projects in one `include(...)` call, cannot make a
 # module go unnoticed.
-mapfile -t locked_projects < <(
-  ./gradlew --no-daemon --quiet lockedProjectPaths | grep '^:'
-)
+if ! locked_projects_raw="$(./gradlew --no-daemon --quiet lockedProjectPaths)"; then
+  echo "Failed to query locked projects from Gradle." >&2
+  exit 1
+fi
+locked_projects=()
+while IFS= read -r line; do
+  [[ $line == :* ]] && locked_projects+=("$line")
+done <<<"${locked_projects_raw}"
 if [[ ${#locked_projects[@]} -eq 0 ]]; then
   echo "Gradle reported no projects with dependency locking enabled." >&2
   exit 1
