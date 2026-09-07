@@ -19,10 +19,10 @@ val personalUseAcknowledgmentRequiredText =
  * is simply not created, which keeps ordinary debug work and `scripts/check` running on a clean
  * clone; `scripts/release-build` is what insists on the variables being present.
  */
-val signingStoreFile: String? = System.getenv("AUTOSPEED_SIGNING_STORE_FILE")
-val signingStorePassword: String? = System.getenv("AUTOSPEED_SIGNING_STORE_PASSWORD")
-val signingKeyAlias: String? = System.getenv("AUTOSPEED_SIGNING_KEY_ALIAS")
-val signingKeyPassword: String? = System.getenv("AUTOSPEED_SIGNING_KEY_PASSWORD")
+val signingStoreFile: String? = providers.environmentVariable("AUTOSPEED_SIGNING_STORE_FILE").orNull
+val signingStorePassword: String? = providers.environmentVariable("AUTOSPEED_SIGNING_STORE_PASSWORD").orNull
+val signingKeyAlias: String? = providers.environmentVariable("AUTOSPEED_SIGNING_KEY_ALIAS").orNull
+val signingKeyPassword: String? = providers.environmentVariable("AUTOSPEED_SIGNING_KEY_PASSWORD").orNull
 val releaseSigningAvailable =
     !signingStoreFile.isNullOrBlank() &&
         !signingStorePassword.isNullOrBlank() &&
