@@ -159,16 +159,25 @@ and confirm the reported certificate SHA-256 matches the keystore.
 
 ## Publish
 
-After checks pass on `main`, create and push an annotated tag:
+After checks pass on `main`, create and push an annotated tag. A lightweight
+tag (plain `git tag v1.0.0`) is rejected by the workflow: it is only a ref
+pointing at a commit, carrying no tagger, date, or message.
 
 ```bash
-git tag -s v1.0.0 -m "Autospeed 1.0.0"
+git tag -a v1.0.0 -m "Autospeed 1.0.0"
 git push origin v1.0.0
 ```
 
-The tag signature establishes the maintainer's release intent. GitHub's
-artifact attestation separately proves which workflow and commit produced each
-APK.
+If a lightweight tag was already pushed, delete it on the remote and locally
+before re-tagging, since `git tag -a` will not overwrite an existing tag:
+
+```bash
+git push origin :refs/tags/v1.0.0
+git tag -d v1.0.0
+```
+
+GitHub's artifact attestation proves which workflow and which commit produced
+each APK.
 
 Verify a downloaded artifact:
 
