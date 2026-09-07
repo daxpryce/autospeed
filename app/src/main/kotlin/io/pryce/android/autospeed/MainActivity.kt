@@ -119,6 +119,15 @@ class MainActivity : Activity() {
     override fun onStart() {
         super.onStart()
         ServiceLocator.surfaceBecameVisible()
+        // Design section 3.6: the overlay is the Autospeed surface shown *while a companion
+        // application is in the foreground*. Once the main screen is visible it is redundant, and
+        // it renders on top of Autospeed itself. Only tapping the overlay used to dismiss it, so
+        // every other way back -- the back gesture, recents, the launcher, or the ongoing
+        // notification, whose contentIntent opens this activity without stopping the service --
+        // left it stranded over the main screen. Stopping it here covers all of them at once.
+        // This cannot cancel a companion launch: launchCompanion starts the overlay while this
+        // activity is already started, so no onStart runs between that call and onStop.
+        OverlayService.stop(this)
         ServiceLocator.appearanceManager.start { latestSettings?.let { screenAppearance.apply(it) } }
         observeSettings()
         // Only resume updates for access we already hold. Asking for anything is deferred until
