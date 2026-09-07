@@ -43,7 +43,7 @@ fi
 # INSTALL_PARSE_FAILED_NO_CERTIFICATES, so confirm the signature here rather than trusting that a
 # successful build implies a usable artifact.
 if [[ "${BUILD_TYPE}" == "release" ]]; then
-  apksigner="$(find "${ANDROID_HOME:-/opt/android-sdk}/build-tools" -type f -name apksigner 2>/dev/null | sort | tail -1)"
+  apksigner="$(find "${ANDROID_HOME:-/opt/android-sdk}/build-tools" -type f -name apksigner 2>/dev/null | sort -V | tail -1)"
   if [[ -z "${apksigner}" ]]; then
     echo "Cannot locate apksigner, so ${apk} cannot be confirmed as signed." >&2
     exit 1
