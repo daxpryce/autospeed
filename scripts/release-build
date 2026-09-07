@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+readonly ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+readonly RELEASE_DIR="${ROOT}/release"
+
+: "${AUTOSPEED_VERSION_NAME:?AUTOSPEED_VERSION_NAME is required}"
+: "${AUTOSPEED_VERSION_CODE:?AUTOSPEED_VERSION_CODE is required}"
+: "${AUTOSPEED_SIGNING_STORE_FILE:?AUTOSPEED_SIGNING_STORE_FILE is required}"
+: "${AUTOSPEED_SIGNING_STORE_PASSWORD:?AUTOSPEED_SIGNING_STORE_PASSWORD is required}"
+: "${AUTOSPEED_SIGNING_KEY_ALIAS:?AUTOSPEED_SIGNING_KEY_ALIAS is required}"
+: "${AUTOSPEED_SIGNING_KEY_PASSWORD:?AUTOSPEED_SIGNING_KEY_PASSWORD is required}"
+
+case "${AUTOSPEED_VERSION_NAME}" in
+  *[!0-9.]* | .* | *.)
+    echo "AUTOSPEED_VERSION_NAME must be a dotted numeric release version." >&2
+    exit 1
+    ;;
+esac
+
+cd "${ROOT}"
+rm -rf "${RELEASE_DIR}"
+mkdir -p "${RELEASE_DIR}"
+
+./scripts/check
+./gradlew --no-daemon \
+  assemblePublicFrameworkRelease \
+  assemblePublicPlayRelease
+
+framework_apk="$(find app/build/outputs/apk -type f -path '*public*framework*release*' -name '*.apk' -print -quit)"
+play_apk="$(find app/build/outputs/apk -type f -path '*public*play*release*' -name '*.apk' -print -quit)"
+
+if [[ -z "${framework_apk}" || -z "${play_apk}" ]]; then
+  echo "Expected public framework and Play release APKs were not produced." >&2
+  find app/build/outputs/apk -type f -name '*.apk' -print >&2 || true
+  exit 1
+fi
+
+install -m 0644 "${framework_apk}" \
+  "${RELEASE_DIR}/autospeed-framework-v${AUTOSPEED_VERSION_NAME}.apk"
+install -m 0644 "${play_apk}" \
+  "${RELEASE_DIR}/autospeed-play-v${AUTOSPEED_VERSION_NAME}.apk"
+
+(
+  cd "${RELEASE_DIR}"
+  sha256sum ./*.apk > SHA256SUMS
+)
+
+for apk in "${RELEASE_DIR}"/*.apk; do
+  if apkanalyzer manifest permissions "${apk}" | grep -q 'android.permission.INTERNET'; then
+    echo "Release APK unexpectedly declares INTERNET: ${apk}" >&2
+    exit 1
+  fi
+done

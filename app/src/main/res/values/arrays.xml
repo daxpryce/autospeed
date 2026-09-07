@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Spinner entries for the settings screen (design section 3.3/3.7/3.8). Order must match the
+     corresponding enum's declared ordinal order exactly: SettingsActivity maps spinner position
+     to/from these enums by ordinal. -->
+<resources>
+    <string-array name="orientation_entries">
+        <item>@string/orientation_landscape</item>
+        <item>@string/orientation_portrait</item>
+        <item>@string/orientation_auto</item>
+    </string-array>
+
+    <string-array name="primary_unit_entries">
+        <item>@string/unit_mph</item>
+        <item>@string/unit_kmh</item>
+    </string-array>
+
+    <string-array name="appearance_entries">
+        <item>@string/appearance_day</item>
+        <item>@string/appearance_night</item>
+        <item>@string/appearance_automatic</item>
+    </string-array>
+
+    <string-array name="background_entries">
+        <item>@string/background_system_wallpaper</item>
+        <item>@string/background_solid_color</item>
+        <item>@string/background_image</item>
+    </string-array>
+</resources>

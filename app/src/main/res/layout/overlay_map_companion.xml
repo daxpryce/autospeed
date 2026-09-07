@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Map-companion overlay (design section 3.6): the speed sign above a single row of transport
+     controls, with tap-to-return on the sign only so it never interferes with those buttons. The
+     whole overlay stays within roughly one inch square. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/overlay_root"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center_horizontal">
+
+    <io.pryce.android.autospeed.ui.SpeedSignView
+        android:id="@+id/overlay_speed_display"
+        android:layout_width="@dimen/overlay_sign_size"
+        android:layout_height="@dimen/overlay_sign_size" />
+
+    <LinearLayout
+        android:id="@+id/overlay_controls"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@drawable/overlay_background">
+
+        <ImageButton
+            android:id="@+id/overlay_previous_button"
+            android:layout_width="@dimen/overlay_button_size"
+            android:layout_height="@dimen/overlay_button_size"
+            android:background="@android:color/transparent"
+            android:scaleType="fitCenter"
+            android:padding="4dp"
+            android:src="@drawable/ic_previous"
+            android:contentDescription="@string/action_previous_track" />
+
+        <ImageButton
+            android:id="@+id/overlay_play_pause_button"
+            android:layout_width="@dimen/overlay_button_size"
+            android:layout_height="@dimen/overlay_button_size"
+            android:background="@android:color/transparent"
+            android:scaleType="fitCenter"
+            android:padding="4dp"
+            android:src="@drawable/ic_play"
+            android:contentDescription="@string/action_play_pause" />
+
+        <ImageButton
+            android:id="@+id/overlay_next_button"
+            android:layout_width="@dimen/overlay_button_size"
+            android:layout_height="@dimen/overlay_button_size"
+            android:background="@android:color/transparent"
+            android:scaleType="fitCenter"
+            android:padding="4dp"
+            android:src="@drawable/ic_next"
+            android:contentDescription="@string/action_next_track" />
+
+        <!-- Design section 3.6: an obvious close/return control. -->
+        <ImageButton
+            android:id="@+id/overlay_close_button"
+            android:layout_width="@dimen/overlay_button_size"
+            android:layout_height="@dimen/overlay_button_size"
+            android:background="@android:color/transparent"
+            android:scaleType="fitCenter"
+            android:padding="4dp"
+            android:src="@drawable/ic_close"
+            android:contentDescription="@string/action_close_overlay" />
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,32 @@
+{
+  "name": "Autospeed Android",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "containerEnv": {
+    "ANDROID_HOME": "/opt/android-sdk",
+    "ANDROID_SDK_ROOT": "/opt/android-sdk",
+    "GRADLE_USER_HOME": "/home/vscode/.gradle"
+  },
+  "remoteEnv": {
+    "AUTOSPEED_PERSONAL_USE_ACK": "${localEnv:AUTOSPEED_PERSONAL_USE_ACK}"
+  },
+  "mounts": [
+    "source=autospeed-gradle-cache,target=/home/vscode/.gradle,type=volume",
+    "source=autospeed-android-user-v2,target=/home/vscode/.android,type=volume"
+  ],
+  "remoteUser": "vscode",
+  "updateRemoteUserUID": true,
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "fwcd.kotlin",
+        "mathiasfrohlich.Kotlin",
+        "redhat.java",
+        "streetsidesoftware.code-spell-checker"
+      ]
+    }
+  },
+  "postCreateCommand": "gradle --version && typos --version"
+}

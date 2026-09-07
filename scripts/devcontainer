@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+readonly ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+readonly TOOLS_DIR="${ROOT}/.tools"
+readonly NODE_VERSION="22.23.2"
+readonly DEVCONTAINER_VERSION="0.87.0"
+readonly DEVCONTAINER_SHA512="395c232342c7e9c622968d8c5eb9ea6002ed0b028cd1db1da6136c220bb0d04491046f2cd703c88c36cf8833b9b5ac4f4deddc2ec86c4185596355292ad15a24"
+
+case "$(uname -m)" in
+  x86_64)
+    readonly NODE_ARCH="x64"
+    readonly NODE_SHA256="d60acfe00a2932254bb0ad20e01b0d74397a0875595de719654b214f4b03f307"
+    ;;
+  aarch64 | arm64)
+    readonly NODE_ARCH="arm64"
+    readonly NODE_SHA256="fff4078c5def658577f92c88db7db3bc0072924bfb93fe52c1e744a54e94abb8"
+    ;;
+  *)
+    echo "Unsupported host architecture: $(uname -m)" >&2
+    exit 1
+    ;;
+esac
+
+readonly NODE_DIR="${TOOLS_DIR}/node-v${NODE_VERSION}-linux-${NODE_ARCH}"
+readonly CLI_DIR="${TOOLS_DIR}/devcontainer-cli-${DEVCONTAINER_VERSION}"
+
+if [[ ! -x "${NODE_DIR}/bin/node" ]]; then
+  mkdir -p "${TOOLS_DIR}"
+  archive="${TOOLS_DIR}/node.tar.xz"
+  curl --fail --location --retry 3 \
+    "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${NODE_ARCH}.tar.xz" \
+    --output "${archive}"
+  echo "${NODE_SHA256}  ${archive}" | sha256sum --check --strict
+  tar -xJf "${archive}" -C "${TOOLS_DIR}"
+  rm "${archive}"
+fi
+
+if [[ ! -f "${CLI_DIR}/package/devcontainer.js" ]]; then
+  mkdir -p "${CLI_DIR}"
+  archive="${TOOLS_DIR}/devcontainer-cli.tgz"
+  curl --fail --location --retry 3 \
+    "https://registry.npmjs.org/@devcontainers/cli/-/cli-${DEVCONTAINER_VERSION}.tgz" \
+    --output "${archive}"
+  echo "${DEVCONTAINER_SHA512}  ${archive}" | sha512sum --check --strict
+  tar -xzf "${archive}" -C "${CLI_DIR}"
+  rm "${archive}"
+fi
+
+exec "${NODE_DIR}/bin/node" "${CLI_DIR}/package/devcontainer.js" "$@"

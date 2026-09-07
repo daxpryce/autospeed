@@ -1,0 +1,43 @@
+# Gradle and toolchain state.
+#
+# The build directories are anchored to the three Gradle projects rather than
+# written as `**/build/`: `build` is also a legitimate Kotlin package name in
+# this repository (`core/src/main/kotlin/.../core/build/`), and the recursive
+# pattern silently excluded that source from version control.
+/build/
+/app/build/
+/core/build/
+.gradle/
+.kotlin/
+.cxx/
+local.properties
+
+# Downloaded by scripts/container-up; pinned by version and hash, never committed.
+.tools/
+
+# Build artifacts produced by scripts/build-apk and scripts/release-build.
+dist/
+release/
+*.apk
+*.aab
+*.apks
+
+# Signing material must never be committed.
+*.jks
+*.keystore
+keystore.properties
+
+# The personal-use acknowledgment is deliberately untracked so a personal build
+# cannot be produced accidentally. See DEVELOPING.md.
+.env
+
+# Editors and operating systems.
+.idea/
+*.iml
+.vscode/
+.DS_Store
+
+# Profiling and crash output.
+captures/
+*.hprof
+*.log

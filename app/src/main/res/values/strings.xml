@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">Autospeed</string>
+    <string name="notification_listener_label">Autospeed media control</string>
+    <string name="zen_condition_provider_label">Autospeed notification suppression</string>
+    <string name="overlay_notification_channel_name">Autospeed overlay</string>
+    <string name="overlay_notification_title">Autospeed is active</string>
+    <string name="overlay_notification_text_map">Speed and media controls are overlaid on your map app</string>
+    <string name="overlay_notification_text_media">Speed is overlaid on your media app</string>
+    <string name="overlay_stop_action">Stop</string>
+
+    <string name="status_awaiting_first_fix">Waiting for location…</string>
+    <string name="status_stale">Location signal is stale</string>
+    <string name="status_unavailable">Speed unavailable</string>
+    <string name="status_permission_denied">Location permission needed</string>
+    <string name="status_location_disabled">Location is turned off</string>
+
+    <string name="unit_mph" translatable="false">mph</string>
+    <string name="unit_kmh" translatable="false">km/h</string>
+
+    <string name="action_previous_track">Previous track</string>
+    <string name="action_play_pause">Play or pause</string>
+    <string name="action_next_track">Next track</string>
+    <string name="action_open_map">Open map</string>
+    <string name="action_open_media">Open media app</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_grant_location_permission">Grant location permission</string>
+    <string name="action_open_location_settings">Open location settings</string>
+    <string name="action_close_overlay">Close Autospeed overlay</string>
+
+    <string name="advisory_message">Do not configure or interact with Autospeed while driving. Obey applicable laws and remain attentive.</string>
+    <string name="advisory_dismiss">OK</string>
+
+    <string name="settings_title">Settings</string>
+    <string name="settings_orientation">Orientation</string>
+    <string name="settings_primary_unit">Primary unit</string>
+    <string name="settings_secondary_visible">Show secondary unit</string>
+    <string name="settings_map_app">Map application</string>
+    <string name="settings_media_app">Media application</string>
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_notification_suppression">Suppress notification interruptions while active</string>
+    <string name="settings_play_fallback">Allow Play location fallback</string>
+    <string name="settings_background">Background</string>
+    <string name="settings_none_selected">None selected</string>
+    <string name="settings_background_color">Choose background color</string>
+    <string name="settings_background_image">Choose background image</string>
+    <string name="settings_background_image_change">Change background image</string>
+    <string name="settings_background_image_failed">That image could not be opened. Choose another.</string>
+    <string name="color_black">Black</string>
+    <string name="color_charcoal">Charcoal</string>
+    <string name="color_slate">Slate</string>
+    <string name="color_navy">Navy</string>
+    <string name="color_forest">Forest</string>
+    <string name="color_maroon">Maroon</string>
+    <string name="color_sand">Sand</string>
+    <string name="color_white">White</string>
+
+    <string name="orientation_landscape">Landscape</string>
+    <string name="orientation_portrait">Portrait</string>
+    <string name="orientation_auto">Auto-select</string>
+
+    <string name="appearance_day">Day</string>
+    <string name="appearance_night">Night</string>
+    <string name="appearance_automatic">Automatic</string>
+
+    <string name="background_system_wallpaper">System wallpaper</string>
+    <string name="background_solid_color">Solid color</string>
+    <string name="background_image">Image</string>
+
+    <string name="error_launch_failed">Couldn\'t open the selected application</string>
+    <string name="error_companion_missing">That application is no longer available. Choose another one in settings.</string>
+    <string name="error_overlay_permission_required">Display-over-other-apps access is required to start the overlay</string>
+    <!-- Up-front access setup (design sections 4.2 and 6.1). -->
+    <string name="setup_title">Set up access</string>
+    <string name="setup_intro">Autospeed works best when it has everything it needs before you start driving. Grant what you want now so Android never interrupts you with a permission request on the road. Only location is required; everything else is optional and only turns off its own feature.</string>
+    <string name="setup_done">Continue</string>
+    <string name="action_grant_access">Grant</string>
+    <string name="action_review_access">Review access</string>
+    <string name="access_status_granted">Granted</string>
+    <string name="access_status_required">Required</string>
+    <string name="access_status_optional">Optional</string>
+    <string name="error_settings_unavailable">This device does not provide that settings screen.</string>
+
+    <string name="settings_about_heading">About</string>
+    <string name="settings_license_note">Autospeed is released under the MIT License. The full text ships with the source repository.</string>
+    <string name="action_about">About Autospeed</string>
+    <string name="about_dialog_title">About Autospeed</string>
+    <string name="about_dialog_body">Autospeed was written by Dax Pryce together with a large language model, for his own personal use in his own vehicle.\n\nIt is shared as-is under the MIT License, with no warranty of any kind. Anyone else who installs or runs it does so entirely at their own risk and assumes all liability and responsibility for that choice.\n\nAutospeed is not a certified instrument. It estimates speed from satellite positioning, which can be delayed, degraded, or wrong. Always trust your vehicle\u2019s own instrument cluster over this app, and keep your attention on the road.</string>
+    <string name="action_close">Close</string>
+
+    <string name="access_location_title">Precise location</string>
+    <string name="access_location_explanation">Used to calculate your current speed. Speed is computed on the device and never leaves it; Autospeed has no internet permission and stores no location history.</string>
+    <string name="access_notifications_title">Notifications</string>
+    <string name="access_notifications_explanation">Android requires a visible notification while overlay mode keeps your speed on screen over another app. Autospeed posts nothing else.</string>
+    <string name="access_overlay_title">Display over other apps</string>
+    <string name="access_overlay_explanation">Lets Autospeed keep your speed visible on top of your map or media app after you launch it.</string>
+    <string name="access_notification_listener_title">Notification access</string>
+    <string name="access_notification_listener_explanation">Used only to find and control the media session that is currently playing, so the play, next, and previous buttons work. Autospeed does not read, store, or transmit your notifications.</string>
+    <string name="access_notification_policy_title">Do Not Disturb access</string>
+    <string name="access_notification_policy_explanation">Lets Autospeed silence notification interruptions while it is on screen. Notifications still arrive in your drawer; only their sounds, vibration, and pop-ups are suppressed.</string>
+</resources>

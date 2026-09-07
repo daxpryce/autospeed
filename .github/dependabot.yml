@@ -1,0 +1,18 @@
+version: 2
+updates:
+  - package-ecosystem: gradle
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      kotlin-quality:
+        patterns:
+          - "org.jetbrains.kotlin*"
+          - "io.gitlab.arturbosch.detekt*"
+          - "org.jlleitschuh.gradle.ktlint*"
+          - "org.jetbrains.kotlinx.kover*"
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

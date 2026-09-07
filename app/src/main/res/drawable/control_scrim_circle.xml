@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Per-control scrim (design section 3.7). Replaces the previous full-width opaque bars, which
+    hid the wallpaper and rendered the icons invisible against it. Drawn white so a runtime
+    backgroundTint can set the day or night scrim colour directly.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="#FFFFFFFF" />
+</shape>

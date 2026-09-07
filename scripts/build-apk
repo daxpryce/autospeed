@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Builds one Autospeed variant and copies its APK to dist/ under a stable, descriptive name, so
+# a locally built artifact never has to be dug out of app/build/outputs/apk/<flavor>/<type>/.
+#
+# Run inside the devcontainer, e.g.:
+#   ./scripts/container-run ./scripts/build-apk
+#   ./scripts/container-run ./scripts/build-apk publicFrameworkDebug
+#
+# Personal variants additionally require AUTOSPEED_PERSONAL_USE_ACK (design section 2.1);
+# devcontainer.json forwards it from the host environment.
+
+readonly ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+readonly DIST_DIR="${ROOT}/dist"
+readonly VARIANT="${1:-personalFrameworkDebug}"
+
+case "${VARIANT}" in
+  *Debug) BUILD_TYPE="debug" ;;
+  *Release) BUILD_TYPE="release" ;;
+  *)
+    echo "Variant must end in Debug or Release, e.g. personalFrameworkDebug: ${VARIANT}" >&2
+    exit 2
+    ;;
+esac
+
+# personalFrameworkDebug -> personalFramework
+readonly FLAVOR="${VARIANT%"${BUILD_TYPE^}"}"
+readonly VARIANT_DIR="${ROOT}/app/build/outputs/apk/${FLAVOR}/${BUILD_TYPE}"
+
+cd "${ROOT}"
+./gradlew "assemble${VARIANT^}"
+
+apk="$(find "${VARIANT_DIR}" -maxdepth 1 -type f -name '*.apk' -print -quit 2>/dev/null || true)"
+if [[ -z "${apk}" ]]; then
+  echo "No APK was produced in ${VARIANT_DIR}." >&2
+  exit 1
+fi
+
+mkdir -p "${DIST_DIR}"
+readonly DEST="${DIST_DIR}/autospeed-${FLAVOR}-${BUILD_TYPE}.apk"
+install -m 0644 "${apk}" "${DEST}"
+
+echo
+echo "APK: ${DEST}"
+echo "     (on the host: ${DEST/#${ROOT}/.})"

@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+readonly ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+if (($# == 0)); then
+  echo "Usage: scripts/container-run COMMAND [ARG ...]" >&2
+  exit 2
+fi
+
+"${ROOT}/scripts/devcontainer" up --workspace-folder "${ROOT}" >/dev/null
+exec "${ROOT}/scripts/devcontainer" exec --workspace-folder "${ROOT}" "$@"

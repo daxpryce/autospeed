@@ -1,0 +1,11 @@
+[files]
+extend-exclude = [
+  ".gradle/",
+  ".tools/",
+  "**/build/",
+  "gradle/verification-metadata.xml",
+]
+
+[default.extend-words]
+kph = "kph"
+ndk = "ndk"

@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Autospeed's main screen, landscape arrangement (design section 3.2). Uses exactly the same
+    view ids as layout/activity_main.xml so MainActivity's view binding and listener wiring are
+    identical in both orientations.
+
+    Arrangement: the media transport bar is the right-most column, stacked vertically. To its
+    left is the speed readout, with the companion launch row along the bottom of that column:
+    map on the left, media app on the right, so "open media app" sits immediately left of the
+    media transport bar.
+-->
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:parentTag="android.widget.FrameLayout">
+
+    <ImageView
+        android:id="@+id/background_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:contentDescription="@null"
+        android:visibility="gone" />
+
+    <FrameLayout
+        android:id="@+id/content_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="@dimen/media_bar_width"
+            android:orientation="vertical">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+                <io.pryce.android.autospeed.ui.SpeedDisplayView
+                    android:id="@+id/speed_display"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center" />
+
+                <ImageButton
+                    android:id="@+id/settings_button"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="top|end"
+                    android:background="@drawable/control_scrim_circle"
+                    android:src="@drawable/ic_settings"
+                    android:contentDescription="@string/action_settings" />
+
+            </FrameLayout>
+
+            <!--
+                Design sections 4.2 and 6.5: when location permission or device location is
+                missing, offer a direct, persistent route to the correct system screen rather
+                than a transient message. Hidden whenever location access is usable.
+            -->
+            <Button
+                android:id="@+id/location_action_button"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginBottom="8dp"
+                android:background="@color/day_surface_scrim"
+                android:textColor="@color/day_accent"
+                android:text="@string/action_grant_location_permission"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/companion_button_bar"
+                style="?android:attr/buttonBarStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:minHeight="64dp">
+
+                <Button
+                    android:id="@+id/map_button"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="56dp"
+                    android:layout_weight="1"
+                    android:layout_margin="8dp"
+                    android:drawableStart="@drawable/ic_map"
+                    android:text="@string/action_open_map" />
+
+                <Button
+                    android:id="@+id/media_button"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="56dp"
+                    android:layout_weight="1"
+                    android:layout_margin="8dp"
+                    android:drawableStart="@drawable/ic_media"
+                    android:text="@string/action_open_media" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/media_button_bar"
+            android:layout_width="@dimen/media_bar_width"
+            android:layout_height="match_parent"
+            android:layout_gravity="end"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <ImageButton
+                android:id="@+id/previous_button"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_margin="8dp"
+                android:background="@drawable/control_scrim_circle"
+                android:src="@drawable/ic_previous"
+                android:contentDescription="@string/action_previous_track" />
+
+            <ImageButton
+                android:id="@+id/play_pause_button"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_margin="8dp"
+                android:background="@drawable/control_scrim_circle"
+                android:src="@drawable/ic_play"
+                android:contentDescription="@string/action_play_pause" />
+
+            <ImageButton
+                android:id="@+id/next_button"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_margin="8dp"
+                android:background="@drawable/control_scrim_circle"
+                android:src="@drawable/ic_next"
+                android:contentDescription="@string/action_next_track" />
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+</merge>

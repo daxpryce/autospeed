@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+readonly ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "${ROOT}"
+
+echo "Review every dependency change before committing regenerated locks." >&2
+./gradlew --no-daemon --write-locks dependencies
+./gradlew --no-daemon \
+  --write-verification-metadata sha256 \
+  help

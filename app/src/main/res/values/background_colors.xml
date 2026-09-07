@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    The solid-background palette (design section 3.7). These are deliberately a fixed, mostly dark
+    set rather than a free colour wheel: the speed readout has to stay legible against whatever is
+    chosen, and a driver should not be tuning a colour picker.
+-->
+<resources>
+    <color name="background_choice_black">#FF000000</color>
+    <color name="background_choice_charcoal">#FF1C1C1E</color>
+    <color name="background_choice_slate">#FF2F3A45</color>
+    <color name="background_choice_navy">#FF0B1F3A</color>
+    <color name="background_choice_forest">#FF10291B</color>
+    <color name="background_choice_maroon">#FF2B0F14</color>
+    <color name="background_choice_sand">#FFE8DCC0</color>
+    <color name="background_choice_white">#FFFFFFFF</color>
+</resources>

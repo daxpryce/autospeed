@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- High-contrast day palette (design section 3.7): readable in direct daylight. -->
+    <color name="day_background">#FFFFFFFF</color>
+    <color name="day_on_background">#FF000000</color>
+    <color name="day_surface_scrim">#CCFFFFFF</color>
+    <color name="day_accent">#FF0B5FFF</color>
+    <color name="day_stale">#FFB00020</color>
+
+    <!-- High-contrast night palette: substantially reduces emitted light without merely
+         inverting colors, and keeps legibility. -->
+    <color name="night_background">#FF000000</color>
+    <color name="night_on_background">#FFE6E6E6</color>
+    <color name="night_surface_scrim">#CC000000</color>
+    <color name="night_accent">#FF8AB4FF</color>
+    <color name="night_stale">#FFFF6E6E</color>
+
+    <!-- Per-control scrims. Translucent so the chosen wallpaper or image still reads through,
+         unlike the opaque bars these replaced. -->
+    <color name="day_control_scrim">#59FFFFFF</color>
+    <color name="night_control_scrim">#8C000000</color>
+
+    <!-- Toggle colours: the off state stays neutral so the accent on state is unambiguous. -->
+    <color name="switch_off">#FF9E9E9E</color>
+    <color name="switch_off_track">#FF616161</color>
+</resources>

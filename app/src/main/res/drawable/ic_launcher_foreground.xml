@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Material Symbols Outlined "speed_3", from Google's Material Symbols set, used under the
+    Apache License 2.0. See THIRD_PARTY_NOTICES.md.
+
+    The source artwork is a 960x960 glyph whose viewBox origin is (0, -960), which Android's
+    vector drawables cannot express directly. The group below reproduces that viewBox and scales
+    the glyph into the adaptive-icon safe zone: a point p maps to translate + scale * p, so the
+    y translation both flips the negative origin back into range and centres the result.
+
+    This doubles as the monochrome layer, so it stays a single flat colour and carries its shape
+    in the alpha channel alone; Android's themed icons tint that layer with the system palette.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <group
+        android:scaleX="0.0666667"
+        android:scaleY="0.0666667"
+        android:translateX="22"
+        android:translateY="86">
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M205,-160q-22,0 -40.5,-9.5T135,-198q-27,-46 -41,-97T81,-400q0,-94 41.5,-177.5T239,-718l21,87q-48,45 -73.5,105T161,-400q0,42 11,83t33,77h551q21,-37 32.5,-77.5T800,-400q0,-134 -93,-227t-227,-93q-10,0 -19.5,0.5T441,-717l-53,-72q23,-5 46,-8t46,-3q83,0 156,31.5T763,-683q54,54 85.5,127T880,-400q0,54 -14,104.5T826,-198q-11,19 -29.5,28.5T756,-160H205ZM513,-328q34,-15 46,-49t-8,-63q-58,-83 -117.5,-163T311,-762q19,99 42.5,196T406,-372q10,33 42.5,45.5T513,-328ZM481,-401Z" />
+    </group>
+
+</vector>
