@@ -36,6 +36,6 @@ while IFS= read -r lockfile; do
   fi
 done < <(find . -mindepth 2 -name gradle.lockfile -not -path '*/build/*' -printf '%P\n')
 
-readonly dependency_tasks=("${locked_projects[@]/%/:dependencies}")
-echo "Regenerating locks for: ${locked_projects[*]}" >&2
+readonly dependency_tasks=(":dependencies" "${locked_projects[@]/%/:dependencies}")
+echo "Regenerating locks for: : ${locked_projects[*]}" >&2
 ./gradlew --no-daemon --write-locks "${dependency_tasks[@]}"
