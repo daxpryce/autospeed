@@ -12,7 +12,7 @@ val personalUseAcknowledgmentRequiredText =
         "Obey applicable laws and remain attentive."
 
 /**
- * Release signing material, supplied entirely through the environment (see DEVELOPING.md).
+ * Release signing material, supplied entirely through the environment (see `docs/releases.md`).
  *
  * Nothing about the signing key may be committed, so there is no keystore path, alias, or
  * password anywhere in this repository. When the variables are absent the signing configuration
@@ -30,9 +30,18 @@ val releaseSigningAvailable =
         !signingKeyPassword.isNullOrBlank()
 
 // Overridable so a tagged release can carry the tag's version rather than whatever was last
-// committed here. scripts/release-build validates the format before it reaches Gradle.
+// committed here. An unset variable falls back to the development defaults, but a variable that
+// is set and unusable is a configuration error: silently shipping versionCode 1 would produce a
+// release Android treats as a downgrade of every prior install, which is not recoverable by
+// republishing under the same version.
 val releaseVersionName: String = System.getenv("AUTOSPEED_VERSION_NAME") ?: "0.1.0"
-val releaseVersionCode: Int = System.getenv("AUTOSPEED_VERSION_CODE")?.toIntOrNull() ?: 1
+val releaseVersionCode: Int =
+    System.getenv("AUTOSPEED_VERSION_CODE")?.let { raw ->
+        raw.toIntOrNull()?.takeIf { it > 0 }
+            ?: throw GradleException(
+                "AUTOSPEED_VERSION_CODE must be a positive integer, but was \"$raw\".",
+            )
+    } ?: 1
 
 android {
     namespace = "io.pryce.android.autospeed"
@@ -81,11 +90,11 @@ android {
                 storePassword = signingStorePassword
                 keyAlias = signingKeyAlias
                 keyPassword = signingKeyPassword
-                // v1 (JAR signing) is deliberately off: it is only consulted below API 24 and
-                // minSdk here is 36. v3 is on so the key can be rotated later without orphaning
-                // installs.
+                // v3 only. v1 (JAR signing) is consulted only below API 24 and v2 only below
+                // API 28, while minSdk here is 36, so neither can ever be reached. v3 also
+                // permits key rotation later without orphaning installs.
                 enableV1Signing = false
-                enableV2Signing = true
+                enableV2Signing = false
                 enableV3Signing = true
             }
         }

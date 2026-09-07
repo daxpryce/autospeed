@@ -121,11 +121,17 @@ created at all, so a clean clone still builds and passes `scripts/check`;
 `scripts/release-build` is what requires them.
 
 `AUTOSPEED_VERSION_NAME` and `AUTOSPEED_VERSION_CODE` override the defaults in
-`defaultConfig`, so a tagged release carries the tag's version.
+`defaultConfig`, so a tagged release carries the tag's version. Both are
+validated in `scripts/release-build` and again in Gradle: an unset variable
+falls back to the development default, but one that is set and unusable fails
+the build. Silently falling back to `versionCode` 1 would publish a release
+that Android treats as a downgrade of every existing install, and that cannot
+be undone by republishing under the same version.
 
-Release APKs are signed with APK Signature Scheme **v3 only**. This is correct
-here: v1 is consulted only below API 24 and v2 only below API 28, while minSdk
-is 36. v3 also permits key rotation later. Verify a build with:
+Release APKs are signed with APK Signature Scheme **v3 only**: `enableV1Signing`
+and `enableV2Signing` are both false. This is correct here, because v1 is
+consulted only below API 24 and v2 only below API 28, while minSdk is 36. v3
+also permits key rotation later. Verify a build with:
 
 ```bash
 ./scripts/container-run bash -lc \
