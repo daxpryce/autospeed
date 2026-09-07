@@ -99,3 +99,17 @@ subprojects {
         }
     }
 }
+
+// The lock-regeneration script needs the authoritative list of projects whose dependencies are
+// locked, which is exactly the set the `subprojects` block above applies `dependencyLocking` to.
+// Deriving it here rather than parsing `settings.gradle.kts` keeps the two in step: reformatting
+// that file, or declaring several projects in one `include(...)` call, cannot make a module go
+// unnoticed. Silent partial regeneration is the specific failure this task exists to prevent.
+tasks.register("lockedProjectPaths") {
+    description = "Print the path of every project that has dependency locking enabled."
+    group = "help"
+    val lockedPaths = subprojects.map { it.path }.sorted()
+    doLast {
+        lockedPaths.forEach { println(it) }
+    }
+}

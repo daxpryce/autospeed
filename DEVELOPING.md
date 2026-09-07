@@ -228,10 +228,13 @@ review every diff:
 ./scripts/container-run ./scripts/update-dependency-locks
 ```
 
-`dependencies` is a per-project task, so the script invokes it once per
-subproject listed in `settings.gradle.kts`. A bare `./gradlew dependencies`
-resolves only the root project and leaves every module lockfile untouched
-without reporting an error.
+`dependencies` is a per-project task, so the script invokes it once per locked
+project, asking Gradle itself (`./gradlew lockedProjectPaths`) which projects
+those are. A bare `./gradlew dependencies` resolves only the root project and
+leaves every module lockfile untouched without reporting an error. The script
+also refuses to run if it finds a committed lockfile belonging to a project
+Gradle no longer reports as locked, since that file would otherwise drift
+unnoticed.
 
 Gradle's dependency *verification* (`gradle/verification-metadata.xml`) is
 deliberately not enabled. Turning it on is not just a matter of generating the
