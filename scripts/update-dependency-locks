@@ -21,6 +21,3 @@ fi
 readonly dependency_tasks=("${locked_projects[@]/%/:dependencies}")
 echo "Regenerating locks for: ${locked_projects[*]}" >&2
 ./gradlew --no-daemon --write-locks "${dependency_tasks[@]}"
-./gradlew --no-daemon \
-  --write-verification-metadata sha256 \
-  help
