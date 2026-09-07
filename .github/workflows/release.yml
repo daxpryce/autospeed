@@ -66,10 +66,30 @@ jobs:
         run: |
           set -euo pipefail
           version="${GITHUB_REF_NAME#v}"
+          # Derive versionCode from the tag rather than from GITHUB_RUN_NUMBER. run_number is
+          # scoped to a single workflow file, so renaming or recreating this file restarts it at
+          # 1 -- and shipping versionCode 1 again makes Android treat the release as a downgrade
+          # of every prior install, which republishing cannot undo. Deriving from the tag also
+          # keeps the artifact reproducible from source. The tag was already constrained to
+          # ^v[0-9]+\.[0-9]+\.[0-9]+$ above, so these components are known to be numeric.
+          IFS=. read -r major minor patch <<<"${version}"
+          # major <= 2099 keeps the largest encodable value (2099999999) under Android's
+          # 2100000000 ceiling, so any tag this guard accepts is one both validators accept.
+          if ((10#${major} > 2099 || 10#${minor} > 999 || 10#${patch} > 999)); then
+            echo "::error::Tag ${GITHUB_REF_NAME} cannot be encoded as an Android versionCode."
+            echo "::error::Requires major <= 2099 and minor/patch <= 999."
+            exit 1
+          fi
+          version_code=$((10#${major} * 1000000 + 10#${minor} * 1000 + 10#${patch}))
+          if ((version_code < 1)); then
+            echo "::error::Tag ${GITHUB_REF_NAME} encodes to versionCode 0, which Android rejects."
+            exit 1
+          fi
+          echo "Publishing ${GITHUB_REF_NAME} as versionName ${version} / versionCode ${version_code}."
           ./scripts/devcontainer exec \
             --workspace-folder "${GITHUB_WORKSPACE}" \
             --remote-env "AUTOSPEED_VERSION_NAME=${version}" \
-            --remote-env "AUTOSPEED_VERSION_CODE=${GITHUB_RUN_NUMBER}" \
+            --remote-env "AUTOSPEED_VERSION_CODE=${version_code}" \
             --remote-env "AUTOSPEED_SIGNING_STORE_FILE=/workspaces/autospeed/.release-secrets/autospeed-release.jks" \
             --remote-env "AUTOSPEED_SIGNING_STORE_PASSWORD=${STORE_PASSWORD}" \
             --remote-env "AUTOSPEED_SIGNING_KEY_ALIAS=${KEY_ALIAS}" \
