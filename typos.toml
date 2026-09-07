@@ -2,9 +2,18 @@
 extend-exclude = [
   ".gradle/",
   ".tools/",
-  "**/build/",
+  # Anchored to the Gradle projects: "build" is also a real Kotlin package here
+  # (core/src/main/kotlin/.../core/build/), which "**/build/" would skip.
+  "/build/",
+  "/app/build/",
+  "/core/build/",
   "gradle/verification-metadata.xml",
 ]
+
+[default]
+# Certificate fingerprints and other colon-separated hex are data, not prose:
+# a run like "BA" is a byte, and the spell checker would otherwise "correct" it.
+extend-ignore-re = ["\\b(?:[0-9A-F]{2}:){7,}[0-9A-F]{2}\\b"]
 
 [default.extend-words]
 kph = "kph"

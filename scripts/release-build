@@ -18,6 +18,16 @@ case "${AUTOSPEED_VERSION_NAME}" in
     ;;
 esac
 
+# Gradle also rejects an unusable value, but catching it here fails the release before the
+# quality gate and two release assemblies have been run. The digit-count bound keeps the
+# arithmetic below 2^63 so a long input cannot wrap instead of being rejected, and "0", "00"
+# and any other all-zero string are digits without being a usable version code.
+if [[ ! "${AUTOSPEED_VERSION_CODE}" =~ ^[0-9]{1,10}$ ]] ||
+  ((10#${AUTOSPEED_VERSION_CODE} < 1 || 10#${AUTOSPEED_VERSION_CODE} > 2100000000)); then
+  echo "AUTOSPEED_VERSION_CODE must be an integer from 1 to 2100000000." >&2
+  exit 1
+fi
+
 cd "${ROOT}"
 rm -rf "${RELEASE_DIR}"
 mkdir -p "${RELEASE_DIR}"

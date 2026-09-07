@@ -59,6 +59,16 @@ Release APKs are built only by the tagged GitHub Actions workflow using the
 same pinned devcontainer. Each release includes framework and Play-compatible
 APKs, SHA-256 checksums, and GitHub build-provenance attestations.
 
+Release APKs are signed with a certificate whose SHA-256 fingerprint is:
+
+```
+10:DD:51:9E:7B:25:48:87:BA:81:56:04:57:9B:C2:42:70:26:C9:CA:BD:00:11:93:F9:1D:F0:09:2D:F1:93:80
+```
+
+Check a downloaded APK against it with
+`apksigner verify --print-certs autospeed-framework-vX.Y.Z.apk`. An APK
+reporting a different fingerprint did not come from this project.
+
 F-Droid publication is not currently planned. The framework variant avoids
 proprietary runtime dependencies so a future submission remains possible.
 

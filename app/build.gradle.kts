@@ -11,6 +11,41 @@ val personalUseAcknowledgmentRequiredText =
     "Do not configure or interact with Autospeed while driving. " +
         "Obey applicable laws and remain attentive."
 
+/**
+ * Release signing material, supplied entirely through the environment (see `docs/releases.md`).
+ *
+ * Nothing about the signing key may be committed, so there is no keystore path, alias, or
+ * password anywhere in this repository. When the variables are absent the signing configuration
+ * is simply not created, which keeps ordinary debug work and `scripts/check` running on a clean
+ * clone; `scripts/release-build` is what insists on the variables being present.
+ */
+val signingStoreFile: String? = providers.environmentVariable("AUTOSPEED_SIGNING_STORE_FILE").orNull
+val signingStorePassword: String? = providers.environmentVariable("AUTOSPEED_SIGNING_STORE_PASSWORD").orNull
+val signingKeyAlias: String? = providers.environmentVariable("AUTOSPEED_SIGNING_KEY_ALIAS").orNull
+val signingKeyPassword: String? = providers.environmentVariable("AUTOSPEED_SIGNING_KEY_PASSWORD").orNull
+val releaseSigningAvailable =
+    !signingStoreFile.isNullOrBlank() &&
+        !signingStorePassword.isNullOrBlank() &&
+        !signingKeyAlias.isNullOrBlank() &&
+        !signingKeyPassword.isNullOrBlank()
+
+// Overridable so a tagged release can carry the tag's version rather than whatever was last
+// committed here. An unset variable falls back to the development defaults, but a variable that
+// is set and unusable is a configuration error: silently shipping versionCode 1 would produce a
+// release Android treats as a downgrade of every prior install, which is not recoverable by
+// republishing under the same version. The bounds match the ones scripts/release-build applies.
+// Android's documented ceiling for versionCode.
+val maxAndroidVersionCode = 2100000000
+val releaseVersionName: String = System.getenv("AUTOSPEED_VERSION_NAME") ?: "0.1.0"
+val releaseVersionCode: Int =
+    System.getenv("AUTOSPEED_VERSION_CODE")?.let { raw ->
+        raw.toIntOrNull()?.takeIf { it in 1..maxAndroidVersionCode }
+            ?: throw GradleException(
+                "AUTOSPEED_VERSION_CODE must be an integer from 1 to " +
+                    "$maxAndroidVersionCode, but was \"$raw\".",
+            )
+    } ?: 1
+
 android {
     namespace = "io.pryce.android.autospeed"
     // Design section 2: minimum API 36, target and compile against API 37. The Android SDK now
@@ -24,8 +59,8 @@ android {
         applicationId = "io.pryce.android.autospeed"
         minSdk = 36
         targetSdk = 37
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = releaseVersionCode
+        versionName = releaseVersionName
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -51,11 +86,31 @@ android {
         }
     }
 
+    if (releaseSigningAvailable) {
+        signingConfigs {
+            create("release") {
+                storeFile = file(signingStoreFile!!)
+                storePassword = signingStorePassword
+                keyAlias = signingKeyAlias
+                keyPassword = signingKeyPassword
+                // v3 only. v1 (JAR signing) is consulted only below API 24 and v2 only below
+                // API 28, while minSdk here is 36, so neither can ever be reached. v3 also
+                // permits key rotation later without orphaning installs.
+                enableV1Signing = false
+                enableV2Signing = false
+                enableV3Signing = true
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            if (releaseSigningAvailable) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
         debug {
             applicationIdSuffix = ".debug"
