@@ -33,13 +33,16 @@ val releaseSigningAvailable =
 // committed here. An unset variable falls back to the development defaults, but a variable that
 // is set and unusable is a configuration error: silently shipping versionCode 1 would produce a
 // release Android treats as a downgrade of every prior install, which is not recoverable by
-// republishing under the same version.
+// republishing under the same version. The bounds match the ones scripts/release-build applies.
+// Android's documented ceiling for versionCode.
+val maxAndroidVersionCode = 2100000000
 val releaseVersionName: String = System.getenv("AUTOSPEED_VERSION_NAME") ?: "0.1.0"
 val releaseVersionCode: Int =
     System.getenv("AUTOSPEED_VERSION_CODE")?.let { raw ->
-        raw.toIntOrNull()?.takeIf { it > 0 }
+        raw.toIntOrNull()?.takeIf { it in 1..maxAndroidVersionCode }
             ?: throw GradleException(
-                "AUTOSPEED_VERSION_CODE must be a positive integer, but was \"$raw\".",
+                "AUTOSPEED_VERSION_CODE must be an integer from 1 to " +
+                    "$maxAndroidVersionCode, but was \"$raw\".",
             )
     } ?: 1
 

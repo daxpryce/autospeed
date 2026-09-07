@@ -121,12 +121,29 @@ created at all, so a clean clone still builds and passes `scripts/check`;
 `scripts/release-build` is what requires them.
 
 `AUTOSPEED_VERSION_NAME` and `AUTOSPEED_VERSION_CODE` override the defaults in
-`defaultConfig`, so a tagged release carries the tag's version. Both are
-validated in `scripts/release-build` and again in Gradle: an unset variable
-falls back to the development default, but one that is set and unusable fails
-the build. Silently falling back to `versionCode` 1 would publish a release
-that Android treats as a downgrade of every existing install, and that cannot
-be undone by republishing under the same version.
+`defaultConfig`, so a tagged release carries the tag's version.
+
+The workflow derives both from the tag itself, never from the workflow run
+counter. `v1.2.3` becomes version name `1.2.3` and version code
+`1 * 1000000 + 2 * 1000 + 3` = `1002003`. That keeps the version code monotonic
+with the version and reproducible from source, so rebuilding a tag yields the
+same value. `github.run_number` would not: it is scoped to a single workflow
+file and restarts at 1 if that file is renamed or recreated, which would
+republish version code 1. The encoding caps major at 2099 and minor and patch
+at 999, so every tag the workflow accepts is inside the range the validators
+below enforce; a tag outside those limits fails the build with an explicit
+error.
+
+On the release path both are **required**: `scripts/release-build` exits if
+either is unset, then rejects a version name that is not dotted numeric and a
+version code outside 1 to 2100000000. Gradle applies the same bounds, so a bad
+value fails whichever entry point is used. The fallback to the values in
+`defaultConfig` applies only to ordinary local builds, where no version has
+been supplied at all.
+
+The validation exists because a silent fallback to `versionCode` 1 would
+publish a release Android treats as a downgrade of every existing install, and
+that cannot be undone by republishing under the same version.
 
 Release APKs are signed with APK Signature Scheme **v3 only**: `enableV1Signing`
 and `enableV2Signing` are both false. This is correct here, because v1 is
@@ -139,22 +156,6 @@ also permits key rotation later. Verify a build with:
 ```
 
 and confirm the reported certificate SHA-256 matches the keystore.
-
-Generate the key from the pinned container rather than a host JDK:
-
-```bash
-./scripts/container-run keytool -genkeypair \
-  -keystore autospeed-release.jks \
-  -storetype JKS \
-  -alias autospeed \
-  -keyalg EC \
-  -groupname secp256r1 \
-  -validity 10000
-base64 -w0 autospeed-release.jks
-```
-
-Move the keystore to encrypted offline storage after configuring the GitHub
-secret. Do not commit it or leave it in the repository directory.
 
 ## Publish
 
