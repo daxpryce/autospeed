@@ -26,6 +26,7 @@ release/
 *.jks
 *.keystore
 keystore.properties
+.release-secrets/
 
 # The personal-use acknowledgment is deliberately untracked so a personal build
 # cannot be produced accidentally. See DEVELOPING.md.

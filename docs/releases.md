@@ -29,10 +29,64 @@ An environment's deployment rules match a tag by name only and cannot express
 and fails before the signing key is ever materialized. Branch protection on
 `main` is what makes the assertion meaningful.
 
+## Signing key
+
+Generate the key with the devcontainer's `keytool` rather than a host JDK, so
+the key is produced by the same pinned toolchain that signs with it:
+
+```bash
+mkdir -p .release-secrets && chmod 700 .release-secrets
+# Write the password to .release-secrets/store.pw first; never pass it as an
+# argument, where it would be visible in the host process list.
+./scripts/container-run bash -lc '
+  cd /workspaces/autospeed
+  keytool -genkeypair -v \
+    -keystore .release-secrets/autospeed-release.jks \
+    -storetype PKCS12 -alias autospeed \
+    -keyalg RSA -keysize 4096 -validity 10000 \
+    -dname "CN=YOUR NAME" \
+    -storepass:file .release-secrets/store.pw \
+    -keypass:file .release-secrets/store.pw'
+```
+
+PKCS12 does not support a key password that differs from the store password;
+`keytool` warns and ignores a separate `-keypass`. Use one value for both, and
+set both GitHub secrets to it.
+
+Move the keystore outside the repository (`~/.keys/autospeed/`, mode 0600),
+shred the staging copies, and keep an off-machine backup: a base64 encoding of
+the `.jks` in a password-manager secure note, with the password and alias as
+hidden fields on the same item so the key and its password cannot be separated.
+
+Losing this key means no installed copy and no Obtainium subscriber can ever
+accept another update.
+
+## Published signing fingerprint
+
+Every Autospeed release APK is signed with this certificate:
+
+| Field | Value |
+| --- | --- |
+| Subject | `CN=Dax Pryce` |
+| Key | RSA 4096, SHA384withRSA |
+| SHA-256 | `10:DD:51:9E:7B:25:48:87:BA:81:56:04:57:9B:C2:42:70:26:C9:CA:BD:00:11:93:F9:1D:F0:09:2D:F1:93:80` |
+
+This value is public and is not a secret; it is derivable from any signed APK.
+It is published so a downloaded APK can be checked against it, and so a release
+signed with the wrong key is detectable rather than silent:
+
+```bash
+apksigner verify --print-certs autospeed-framework-vX.Y.Z.apk
+```
+
+An APK reporting any other fingerprint did not come from this project,
+regardless of where it was downloaded. The fingerprint changes only if the
+signing key is deliberately rotated, which would be announced in the release
+notes for the version that introduces it.
+
 ## Repository secrets
 
-Create an Android signing key offline and retain an encrypted backup. Configure
-these secrets on the protected `release` environment:
+Configure these secrets on the protected `release` environment:
 
 | Secret | Value |
 | --- | --- |
@@ -41,9 +95,44 @@ these secrets on the protected `release` environment:
 | `AUTOSPEED_SIGNING_KEY_ALIAS` | Signing-key alias |
 | `AUTOSPEED_SIGNING_KEY_PASSWORD` | Signing-key password |
 
+Set `AUTOSPEED_SIGNING_STORE_PASSWORD` and `AUTOSPEED_SIGNING_KEY_PASSWORD` to
+the same value, per the PKCS12 note above.
+
 The signing key is materialized only for the build job and removed in an
-`always()` cleanup step. Losing this key prevents installed copies and
-Obtainium from accepting future updates.
+`always()` cleanup step.
+
+Restrict the environment so the key cannot be used by an ordinary branch push:
+
+```bash
+gh api -X PUT repos/OWNER/REPO/environments/release --input - <<'JSON'
+{"deployment_branch_policy":{"protected_branches":false,"custom_branch_policies":true}}
+JSON
+gh api -X POST repos/OWNER/REPO/environments/release/deployment-branch-policies \
+  -f name='v*' -f type=tag
+```
+
+## How signing is wired
+
+`app/build.gradle.kts` reads `AUTOSPEED_SIGNING_STORE_FILE`,
+`AUTOSPEED_SIGNING_STORE_PASSWORD`, `AUTOSPEED_SIGNING_KEY_ALIAS`, and
+`AUTOSPEED_SIGNING_KEY_PASSWORD` from the environment. Nothing about the key is
+committed. When the variables are absent the signing configuration is not
+created at all, so a clean clone still builds and passes `scripts/check`;
+`scripts/release-build` is what requires them.
+
+`AUTOSPEED_VERSION_NAME` and `AUTOSPEED_VERSION_CODE` override the defaults in
+`defaultConfig`, so a tagged release carries the tag's version.
+
+Release APKs are signed with APK Signature Scheme **v3 only**. This is correct
+here: v1 is consulted only below API 24 and v2 only below API 28, while minSdk
+is 36. v3 also permits key rotation later. Verify a build with:
+
+```bash
+./scripts/container-run bash -lc \
+  '$(find /opt/android-sdk -name apksigner -type f | head -1) verify --print-certs --verbose release/*.apk'
+```
+
+and confirm the reported certificate SHA-256 matches the keystore.
 
 Generate the key from the pinned container rather than a host JDK:
 

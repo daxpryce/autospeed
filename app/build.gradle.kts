@@ -11,6 +11,29 @@ val personalUseAcknowledgmentRequiredText =
     "Do not configure or interact with Autospeed while driving. " +
         "Obey applicable laws and remain attentive."
 
+/**
+ * Release signing material, supplied entirely through the environment (see DEVELOPING.md).
+ *
+ * Nothing about the signing key may be committed, so there is no keystore path, alias, or
+ * password anywhere in this repository. When the variables are absent the signing configuration
+ * is simply not created, which keeps ordinary debug work and `scripts/check` running on a clean
+ * clone; `scripts/release-build` is what insists on the variables being present.
+ */
+val signingStoreFile: String? = System.getenv("AUTOSPEED_SIGNING_STORE_FILE")
+val signingStorePassword: String? = System.getenv("AUTOSPEED_SIGNING_STORE_PASSWORD")
+val signingKeyAlias: String? = System.getenv("AUTOSPEED_SIGNING_KEY_ALIAS")
+val signingKeyPassword: String? = System.getenv("AUTOSPEED_SIGNING_KEY_PASSWORD")
+val releaseSigningAvailable =
+    !signingStoreFile.isNullOrBlank() &&
+        !signingStorePassword.isNullOrBlank() &&
+        !signingKeyAlias.isNullOrBlank() &&
+        !signingKeyPassword.isNullOrBlank()
+
+// Overridable so a tagged release can carry the tag's version rather than whatever was last
+// committed here. scripts/release-build validates the format before it reaches Gradle.
+val releaseVersionName: String = System.getenv("AUTOSPEED_VERSION_NAME") ?: "0.1.0"
+val releaseVersionCode: Int = System.getenv("AUTOSPEED_VERSION_CODE")?.toIntOrNull() ?: 1
+
 android {
     namespace = "io.pryce.android.autospeed"
     // Design section 2: minimum API 36, target and compile against API 37. The Android SDK now
@@ -24,8 +47,8 @@ android {
         applicationId = "io.pryce.android.autospeed"
         minSdk = 36
         targetSdk = 37
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = releaseVersionCode
+        versionName = releaseVersionName
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -51,11 +74,31 @@ android {
         }
     }
 
+    if (releaseSigningAvailable) {
+        signingConfigs {
+            create("release") {
+                storeFile = file(signingStoreFile!!)
+                storePassword = signingStorePassword
+                keyAlias = signingKeyAlias
+                keyPassword = signingKeyPassword
+                // v1 (JAR signing) is deliberately off: it is only consulted below API 24 and
+                // minSdk here is 36. v3 is on so the key can be rotated later without orphaning
+                // installs.
+                enableV1Signing = false
+                enableV2Signing = true
+                enableV3Signing = true
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            if (releaseSigningAvailable) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
         debug {
             applicationIdSuffix = ".debug"
