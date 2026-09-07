@@ -754,10 +754,10 @@ For the selected media application:
 In both cases the overlay is a companion surface, so it must never be visible at
 the same time as Autospeed's own main screen. Whenever the main screen becomes
 visible the overlay stops, no matter how the user got back: tapping the overlay,
-its close action, the notification, the back gesture, recents, or the launcher.
-Enumerating only the deliberate return routes is not sufficient, because the
-notification's own content intent and every system navigation path also bring
-the main screen forward.
+the map companion's close action, the notification, the back gesture, recents,
+or the launcher. Enumerating only the deliberate return routes is not
+sufficient, because the notification's own content intent and every system
+navigation path also bring the main screen forward.
 
 ### 6.5 Revoked access or removed application
 

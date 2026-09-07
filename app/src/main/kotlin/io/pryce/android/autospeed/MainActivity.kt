@@ -135,6 +135,14 @@ class MainActivity : Activity() {
         // system dialog at a user who has not been told why it is being asked for.
         if (hasLocationPermission(this)) {
             startLocationUpdates()
+        } else {
+            // Without permission nothing above re-registers a listener, so any callback the
+            // overlay service installed would survive the stopSelf above: the adapter only
+            // releases it when the last surface goes away, and the main screen is a surface.
+            // That retains a destroyed service, and leaves the adapter active with no live
+            // subscriptions, so a later permission grant would hit the `if (active) return`
+            // fast path in start() and silently never resume updates.
+            ServiceLocator.locationOrchestratorAdapter.stop()
         }
         MediaControlManager.setListener { refreshMediaButton() }
         refreshMediaButton()
