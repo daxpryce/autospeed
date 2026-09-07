@@ -9,6 +9,34 @@ overlay.
 It is not a navigation app, media player, trip recorder, general app launcher,
 or general-purpose Android Auto replacement.
 
+## Screenshots
+
+The main screen shows both units at once, with the media controls and the
+settings gear along the right edge where they stay within reach of a mounted
+phone. The background is the phone's own wallpaper.
+
+![The Autospeed main screen in landscape, showing a large "0 mph" reading with "0 km/h" beneath it, a settings gear and previous, play-pause and next controls down the right edge, and "Open map" and "Open media app" along the bottom.](docs/screenshots/main-screen.png)
+
+Settings, and the map companion overlay sitting over the selected map
+application, showing speed plus transport controls and a close button.
+
+<img src="docs/screenshots/settings.png" width="420" alt="Autospeed settings: orientation, primary unit, secondary unit toggle, appearance, background, notification suppression, map and media application pickers, and an About section.">
+<img src="docs/screenshots/overlay-map.png" width="420" alt="A map application showing the Tacoma Dome, with the Autospeed map companion overlay in the top right corner displaying speed in mph above previous, play-pause, next and close buttons.">
+
+The media companion overlay is deliberately speed-only: the media application
+already owns transport controls, so the overlay does not duplicate them.
+
+![A media player showing album art and track details in landscape, with the Autospeed media companion overlay in the top right corner showing only the current speed in mph.](docs/screenshots/overlay-media.png)
+
+The readings show zero because the phone was parked when these were taken.
+
+The wallpaper in these screenshots is artwork by **Denis Istomin**
+(<https://www.artstation.com/istomin_denis>). It is the author's own phone
+wallpaper, incidental to the capture, and is neither part of Autospeed nor
+distributed with it. Go and look at his work; the real artists deserve to be
+found. The album art and track are *Death in Venice Beach* by **The Bombpops**,
+likewise incidental, unaffiliated, and worth your time.
+
 ## Features
 
 - simultaneous mph and km/h display with configurable primary unit;
