@@ -157,6 +157,48 @@ also permits key rotation later. Verify a build with:
 
 and confirm the reported certificate SHA-256 matches the keystore.
 
+## Local release builds
+
+The workflow above is the only thing that publishes a release, but a signed,
+release-quality APK can also be built locally. This is the only way to obtain a
+personal-profile artifact, which the workflow never publishes.
+
+`devcontainer.json` forwards the signing variables from the host environment
+into the container, so export them in the shell rather than passing them as
+`--remote-env` arguments, where they would be visible in the host process list:
+
+```bash
+export AUTOSPEED_SIGNING_STORE_FILE=/workspaces/autospeed/.release-secrets/autospeed-release.jks
+export AUTOSPEED_SIGNING_KEY_ALIAS=<alias>
+read -rs -p 'store password: ' AUTOSPEED_SIGNING_STORE_PASSWORD && export AUTOSPEED_SIGNING_STORE_PASSWORD
+read -rs -p 'key password: '   AUTOSPEED_SIGNING_KEY_PASSWORD   && export AUTOSPEED_SIGNING_KEY_PASSWORD
+```
+
+`AUTOSPEED_SIGNING_STORE_FILE` is a path *inside* the container, so the
+keystore has to sit somewhere the workspace mount exposes. `.release-secrets/`
+is git-ignored for exactly this, and a keystore kept outside the repository can
+be copied there for the build.
+
+A personal-profile release additionally requires the design section 2.1
+acknowledgment, which is also forwarded from the host:
+
+```bash
+export AUTOSPEED_PERSONAL_USE_ACK='Do not configure or interact with Autospeed while driving. Obey applicable laws and remain attentive.'
+./scripts/container-run ./scripts/build-apk personalPlayRelease
+```
+
+Omitting the signing variables does not fail the build: the signing config is
+simply never created and AGP emits `*-release-unsigned.apk`, which cannot be
+installed (`INSTALL_PARSE_FAILED_NO_CERTIFICATES`). `scripts/build-apk`
+therefore verifies release output with `apksigner` and fails instead of copying
+an unusable APK into `dist/` under a name that looks finished.
+
+Unless `AUTOSPEED_VERSION_NAME` and `AUTOSPEED_VERSION_CODE` are set, a local
+build carries the development version (`0.1.0` / `1`). Personal and public
+profiles use different application IDs, so a locally built personal APK and a
+published public release are separate installations and never update over one
+another.
+
 ## Publish
 
 After checks pass on `main`, create and push an annotated tag. A lightweight
