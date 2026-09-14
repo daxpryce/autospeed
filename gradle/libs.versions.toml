@@ -1,6 +1,6 @@
 [versions]
 agp = "9.4.0"
-kotlin = "2.4.10"
+kotlin = "2.4.20"
 detekt = "1.23.8"
 ktlintGradle = "14.2.0"
 kover = "0.9.9"
