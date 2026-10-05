@@ -1,9 +1,9 @@
 [versions]
 agp = "9.4.0"
-kotlin = "2.4.10"
+kotlin = "2.4.20"
 detekt = "1.23.8"
 ktlintGradle = "14.2.0"
-kover = "0.9.9"
+kover = "0.9.11"
 androidxCoreKtx = "1.19.0"
 androidxDatastorePreferences = "1.2.1"
 kotlinxCoroutines = "1.11.0"
